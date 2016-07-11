@@ -16,10 +16,10 @@ except ImportError:
 import pdb, random, copy, os, sys
 from ast import literal_eval 
 from scipy.stats import truncnorm
-from CDmetaPOP_Offspring import DoOffspringVars
-from CDmetaPOP_Modules import AddAge0s
-from CDmetaPOP_Modules import Do1LocusSelection
-from CDmetaPOP_Modules import Do2LocusSelection
+from . offspring import DoOffspringVars
+from . modules import AddAge0s
+from . modules import Do1LocusSelection
+from . modules import Do2LocusSelection
 
 # ----------------------------------------------------------
 # Global symbols, if any :))

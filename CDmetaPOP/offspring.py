@@ -16,7 +16,7 @@ from sets import Set
 import random,copy
 from ast import literal_eval
 from scipy.stats import truncnorm
-from CDmetaPOP_Mortality import DoEggMortality
+from . mortality import DoEggMortality
 
 # ---------------------------------------------------------------------------------------------------
 def count_unique(keys):

@@ -27,11 +27,11 @@ from scipy.stats import norm
 	
 # CDPOP functions
 try:
-	from CDmetaPOP_Mate import *
-	from CDmetaPOP_Offspring import *
-	from CDmetaPOP_Mortality import *
-	from CDmetaPOP_Immigration import *
-	from CDmetaPOP_Emigration import *
+	from . mate import *
+	from . offspring import *
+	from . mortality import *
+	from .immigration import *
+	from . emigration import *
 	#
 except ImportError:
 	raise ImportError, "CDmetaPOP Modules missing."

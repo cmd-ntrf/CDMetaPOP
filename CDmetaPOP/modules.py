@@ -16,7 +16,7 @@ except ImportError:
 
 # CDmetaPOP functions
 try:
-	from CDmetaPOP_PostProcess import DoOutput
+	from . postprocess import DoOutput
 except ImportError:
 	raise ImportError, "CDmetaPOP PreProcess required."
 

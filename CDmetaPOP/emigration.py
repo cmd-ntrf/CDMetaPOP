@@ -15,8 +15,8 @@ except ImportError:
 # Python specific functions
 import pdb, random, copy, os, sys
 from ast import literal_eval 
-from CDmetaPOP_Modules import Do1LocusSelection
-from CDmetaPOP_Modules import Do2LocusSelection
+from . modules import Do1LocusSelection
+from . modules import Do2LocusSelection
 
 # ----------------------------------------------------------
 # Global symbols, if any :))

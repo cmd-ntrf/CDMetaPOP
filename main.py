@@ -16,8 +16,6 @@ authorNames = "Erin L Landguth"
 # screen and to the log file. When False, log traffic just
 # sent to log file alone.
 msgVerbose = False
-# File absolute paths for importing functions
-SRC_PATH =  "../src/"
 
 # ------------------------------------------
 # Import Modules with Except/Try statements
@@ -32,17 +30,11 @@ except ImportError as eMsg:
 	print("ImportError (%s) Numpy required."%(eMsg))
 	sys.exit(-1)
 
-#Import the package specific folders
-CDPOP_folder = os.path.dirname(os.path.abspath(SRC_PATH+"CDmetaPOP"))
-
-if CDPOP_folder not in sys.path:
-     sys.path.insert(0, CDPOP_folder)
-
 # CDmetaPOP functions
 try:
-	from CDmetaPOP_Modules import * 
-	from CDmetaPOP_PostProcess import *
-	from CDmetaPOP_PreProcess import *
+	from CDmetaPOP.modules import *
+	from CDmetaPOP.postprocess import *
+	from CDmetaPOP.preprocess import *
 except ImportError:
 	raise ImportError, "CDmetaPOP_Modules required."	
 				
