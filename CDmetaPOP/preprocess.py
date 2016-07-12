@@ -102,21 +102,105 @@ COL_TYPES = {
 }
 
 def loadFile(filename, delimiter=','):
-    header_dict = {}
+    dicts = []
 
     with open(filename) as file_:
         records = np.recfromcsv(file_, delimiter=delimiter, case_sensitive=True)
-        for name in records.dtype.names:
-            header_dict[name] = records[name].tolist()
-            for i, value in enumerate(header_dict[name]):
-                if isinstance(value, str) and value.find('|') != -1:
-                    header_dict[name][i] = tuple(value.split('|'))
-                else:
-                    header_dict[name][i] = COL_TYPES[name](value)
+        for r in records:
+            dicts.append(dict(zip(records.dtype.names, r)))
 
-    index_list = list(header_dict.keys())
-    n_jobs = len(header_dict[index_list[0]])
-    return header_dict, index_list, n_jobs
+    return dicts
+
+def convertTypes(param_list):
+    for params in param_list:
+        for key, value in params.items():
+            if isinstance(value, str) and value.find('|') != -1:
+                params[key] = tuple(value.split('|'))
+            else:
+                params[key] = COL_TYPES[key](value)
+        params['alleles'] = params['alleles'] * np.ones(params['loci'],int)
+
+def checkErrors(param_list):
+
+    warnings = 0
+    errors = 0
+    for i, params in enumerate(param_list):
+        # If SNP answer is Y
+        if params['SNPanswer'] == 'Y':
+            # 4 alleles used
+            if params['alleles'][0] != 4:
+                print('Warnign: SNP option specified and 4 ATCG locations is default.')
+                params['alleles'] = 4 * np.ones(params['loci'], int)
+                warnings += 1
+
+            # cdevolve not opperating yet
+            if params['cdevolveans'] != 'N':
+                print('SNP option specified and CDEVOLVE (selection-driven loci) not currently implemented. Use SNPans as N and 2 alleles per loci as proxy.')
+                errors += 1
+
+        # Constant mortality checks
+        if not params['constMortans'] in ('1', '2'):
+            print('Constant mortalities are compounded using option 1 or 2 specifiy correct values. If no constant mortalities are entered, then enter 1.')
+            errors += 1
+
+        # Check on cdevolve answer input
+        if not params['cdevolveans'] in ('1', '2', '1_mat', '2_mat', 'N', 'M', 'G', 'MG_ind', 'MG_link', 'stray', '1_G_ind', '1_G_link'):
+            print('CDEVOLVE answer either N, 1, 2, M, G, MG_ind, MG_link, 1_mat, 2_mat, stray, 1_G_ind, or 1_G_link.')
+            errors += 1
+
+        # For mature and size ans
+        if params['cdevolveans'] in ('M', 'MG_ind', 'MG_link', 'G', '1_G_ind', '1_G_link') and params['sizeans'] == 'N':
+            print('CDEVOLVE answer is M or G and size answer must be Y.')
+            errors += 1
+
+        # If cdevolve is turned on must have 2 alleles
+        if params['cdevolveans'] != 'N' and params['alleles'][0] != 2:
+            print('Warning: More than 2 alleles per locus specified. CDEVOLVE only considers first 2 alleles in selection models.')
+            warnings += 1
+
+        # Must have more than 1 loci
+        if params['loci'] <= 1:
+            print('Currently, CDmetaPOP needs more than 1 locus to run.')
+            errors += 1
+
+        if params['cdevolveans'] in ('1', '2', '1_mat', '2_mat', '1_G_ind', '1_G_link'):
+            if not (params['timecdevolve'] != 'Out' or params['timecdevolve'] != 'Back' or params['timecdevolve'] != 'Both'):
+                print('CDEVOLVE timing must be specified (e.g., Out, Back or Both).')
+                errors += 1
+
+        # Error check on forward mutation in A and backward mutation in B
+        #	Can only happen if cdevolve == 2.
+        if params['mutationtype'] == 'forwardAbackwardBrandomN' and (params['cdevolveans'] != '2' or params['cdevolveans'] == '2_mat'):
+            print('This special case of mutation is for AAbb ancestors and 2-locus selection.')
+            errors += 1
+
+        # Gd matrix answers
+        if not params['gendmatans'] in ('N', 'Dps', 'braycurtis', 'Da'):
+            print('Genetic distance matrix output not an option.')
+            errors += 1
+
+        # grid format
+        if not params['gridformat'] in ('cdpop', 'general', 'genalex', 'genepop', 'structure'):
+            print('Grid format parameter not an option.')
+            errors += 1
+
+        # If genepop, some conditions
+        if params['gridformat'] == 'genepop' and (params['alleles'][0] > 99 or params['loci'] > 99):
+            print('GENEPOP format requires less than 99 alleles and 99 loci.')
+            errors += 1
+
+        # Check burn in times
+        if params['cdevolveans'] != 'N' and params['burningen'] < params['geneswap']:
+            print('Warning: Burnin time < time at which genetic exchange is to initialize, setting burnin time = start genetic exchange time.')
+            params['burningen'] = params['geneswap']
+            warnings += 1
+
+        # Egg frequency
+        if params['eggFrequency'] > 1:
+            print('Egg frequency must be less than or equal to 1.')
+            errors += 1
+
+    return warnings, errors
 
 # ---------------------------------------------------------------------------------------------------	 
 def GetMaxCDValue(threshold,cdmatrix):	
