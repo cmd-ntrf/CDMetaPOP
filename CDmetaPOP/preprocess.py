@@ -68,65 +68,55 @@ def w_choice_general(lst):
     #End::w_choice_general()
 
 # ----------------------------------------------------------------------------------
-def loadFile(filename, header_lines=0, delimiter=None, cdpop_inputvars=False): ###
-    '''
-    Used to load file hearders according to current UNICOR standards
-    as of 5/19/2011
-    '''
-    try:
-        inputfile = open(filename)
-    except (IOError,OSError) as e:
-        print("Load file: %s the file (%s) is not available!"%(e,filename))
-        sys.exit(-1)
+
+COL_TYPES = {
+    'xyfilename': str, 'constMortans': str, 'mcruns': int,
+    'runtime': int, 'output_years': str, 'summaryOutput': str,
+    'cdclimgentime': str, 'mate_cdmat': str, 'dispout_cdmat': str,
+    'dispback_cdmat': str, 'stray_cdmat': str, 'matemoveno': str,
+    'matemoveparA': str, 'matemoveparB': str, 'matemoveparC': str,
+    'matemovethresh': str, 'Freplace': str, 'Mreplace': str,
+    'selfans': str, 'sexans': str, 'FdispmoveOutno': str,
+    'FdispmoveOutparA': str, 'FdispmoveOutparB': str, 'FdispmoveOutparC': str,
+    'FdispmoveOutthresh': str, 'MdispmoveOutno': str, 'MdispmoveOutparA': str,
+    'MdispmoveOutparB': str, 'MdispmoveOutparC': str, 'MdispmoveOutthresh': str,
+    'FdispmoveBackno': str, 'FdispmoveBackparA': str, 'FdispmoveBackparB': str,
+    'FdispmoveBackparC': str, 'FdispmoveBackthresh': str, 'MdispmoveBackno': str,
+    'MdispmoveBackparA': str, 'MdispmoveBackparB': str, 'MdispmoveBackparC': str,
+    'MdispmoveBackthresh': str, 'StrayBackno': str, 'StrayBackparA': str,
+    'StrayBackparB': str, 'StrayBackparC': str, 'StrayBackthresh': str,
+    'HomeAttempt': str, 'offno': str, 'equalClutchSize': str,
+    'eggFrequency': float, 'gendmatans': str, 'gridformat': str,
+    'gridsampling': str, 'muterate': float, 'mutationtype': str,
+    'loci': int, 'alleles': int, 'SNPanswer': str,
+    'mtdna': str, 'startGenes': int, 'cdevolveans': str,
+    'startSelection': int, 'implementSelection': str, 'cdinfect': str,
+    'transmissionprob': float, 'growth_option': str, 'growth_Loo': float,
+    'growth_R0': float, 'growth_temp_max': float, 'growth_temp_CV': float,
+    'growth_temp_t0': float, 'sizecontrol': str, 'mature_length_male': str,
+    'mature_length_female': str, 'mature_slope_male': float, 'mature_int_male': float,
+    'mature_slope_female': float, 'mature_int_female': float, 'Egg_Mean_ans': str,
+    'Egg_Mean_par1': float, 'Egg_Mean_par2': float, 'Egg_Mortality': float,
+    'Egg_Mortality_StDev': float, 'Egg_FemalePercent': str, 'popmodel': str,
+    'popmodel_par1': float, 'correlation_matrix': str
+}
+
+def loadFile(filename, delimiter=','):
     header_dict = {}
-    data_list = []
-    index_list = [] ###
 
-    if delimiter != None:
-        lines = [ln.rstrip().split(delimiter) for ln in inputfile]
-    else:
-        lines = [ln.rstrip().split() for ln in inputfile]
-    # Close file
-    inputfile.close()
+    with open(filename) as file_:
+        records = np.recfromcsv(file_, delimiter=delimiter, case_sensitive=True)
+        for name in records.dtype.names:
+            header_dict[name] = records[name].tolist()
+            for i, value in enumerate(header_dict[name]):
+                if isinstance(value, str) and value.find('|') != -1:
+                    header_dict[name][i] = tuple(value.split('|'))
+                else:
+                    header_dict[name][i] = COL_TYPES[name](value)
 
-    for i,line in enumerate(lines):
-        if i < header_lines:
-            if len(line) <= 1:
-                print("Only one header value in line, skipping line...")
-                continue
-            #else:
-            elif len(line) == 2: ###
-                header_dict[line[0]] = line[1]
-            ### working with a file where the first line is all header keys
-            ### and the following lines are their data
-            elif cdpop_inputvars: ###
-                for j in range(len(line)): ###
-                    header_dict[line[j]] = [] ###
-                    index_list.append(line[j]) ###
-        else:
-            #This is a fix to remove empty entries from from a line if they
-            #exist, this is to fix a problem with reading in cdmatrices
-
-            for i in range(line.count('')):
-                line.remove('')
-            data_list.append(line)
-            if cdpop_inputvars: ###
-                #tempTuple = ()
-                for j in range(len(line)): ###
-                    # remove the following lines should the tuple representing bar-delimited values break anything -TJJ
-                    if line[j].find('|') != -1:
-                        tempList = line[j].split('|')
-                        line[j] = tuple(tempList)
-                    #---
-
-                    header_dict[index_list[j]].append(line[j]) ###
-
-    if not cdpop_inputvars:
-        return header_dict, data_list
-    else:
-        n_jobs = len(lines) - header_lines
-        return header_dict, index_list, n_jobs
-    #End::loadFile
+    index_list = list(header_dict.keys())
+    n_jobs = len(header_dict[index_list[0]])
+    return header_dict, index_list, n_jobs
 
 # ---------------------------------------------------------------------------------------------------	 
 def GetMaxCDValue(threshold,cdmatrix):	

@@ -93,7 +93,7 @@ if __name__ == '__main__':
     start_time1 = datetime.datetime.now()
 
     # Call function and store inputvariables
-    batchVars,batchVarsIndex,nSimulations = loadFile(fileans,1,',',True)
+    batchVars, batchVarsIndex, nSimulations = loadFile(fileans)
 
     # Print to log
     stringout = 'DoUserInput(): '+str(datetime.datetime.now() -start_time1) + ''
