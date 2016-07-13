@@ -710,9 +710,13 @@ def doBatch(ibatch, params):
     # End::Monte Carlo Loop
     #End::Batch Loop
 
+def initPoolProc(outdir):
+    sys.stdout = open(outdir + "/" + multiprocessing.current_process().name + ".out", "a", buffering=0)
+    sys.stderr = open(outdir + "/" + multiprocessing.current_process().name + ".err", "a", buffering=0)
+
 #------------------------------------------------------------
 # Begin main file execution
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 if __name__ == '__main__':
 
     # ------------------------------------------------------
@@ -742,7 +746,7 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     # If entered more processors than machine
-    if noproc >= multiprocessing.cpu_count():
+    if noproc > multiprocessing.cpu_count():
         print('Warning: Specified more CPUs than on local machine. Using one less than '+str(multiprocessing.cpu_count()))
 
     # Create output file directory - will automatically put in the data directory
@@ -780,9 +784,14 @@ if __name__ == '__main__':
     # Begin Batch Looping - assign processors
     # ----------------------------------------
     # This loop is defined by the number of rows in inputvariables.csv
-    for i, params in enumerate(param_list):
-        doBatch(i, params)
+    pool = multiprocessing.Pool(processes=noproc, initializer=(initPoolProc if noproc > 1 else None), initargs=(outdir,))
+    results = []
 
+    for i, params in enumerate(param_list):
+        results.append(pool.apply_async(doBatch, (i, params)))
+
+    for result in results:
+        result.wait()
 
 # End::Main Loop
 # Print to log
