@@ -300,7 +300,7 @@ def doBatch(ibatch, params):
             # Check gen time equal to cdclimgentime
             for icdtime in xrange(len(cdclimgentime)):
                 if gen == int(cdclimgentime[icdtime]):
-                    tupClimate = DoCDClimate(datadir, icdtime, cdclimgentime, params['mate_cdmat'],
+                    climate_params = DoCDClimate(datadir, icdtime, cdclimgentime, params['mate_cdmat'],
                                              params['dispout_cdmat'],
                                              params['dispback_cdmat'], params['stray_cdmat'], params['matemoveno'],
                                              params['FdispmoveOutno'],
@@ -346,71 +346,18 @@ def doBatch(ibatch, params):
                                              preprocess_params["allefreqfiles_pass"],
                                              preprocess_params["classvarsfiles_pass"])
 
-                    cdmatrix_mate = tupClimate[0]
-                    cdmatrix_FOut = tupClimate[1]
-                    cdmatrix_MOut = tupClimate[2]
-                    cdmatrix_FBack = tupClimate[3]
-                    cdmatrix_MBack = tupClimate[4]
-                    cdmatrix_StrBack = tupClimate[5]
-                    thresh_mate = tupClimate[6]
-                    thresh_FOut = tupClimate[7]
-                    thresh_MOut = tupClimate[8]
-                    thresh_FBack = tupClimate[9]
-                    thresh_MBack = tupClimate[10]
-                    thresh_Str = tupClimate[11]
-                    Mg = tupClimate[12]
-                    Str = tupClimate[13]
-                    Str_ScaleMin = tupClimate[14]
-                    Str_ScaleMax = tupClimate[15]
-                    FdispBack_ScaleMin = tupClimate[16]
-                    FdispBack_ScaleMax = tupClimate[17]
-                    MdispBack_ScaleMin = tupClimate[18]
-                    MdispBack_ScaleMax = tupClimate[19]
-                    FdispOut_ScaleMin = tupClimate[20]
-                    FdispOut_ScaleMax = tupClimate[21]
-                    MdispOut_ScaleMin = tupClimate[22]
-                    MdispOut_ScaleMax = tupClimate[23]
-                    mate_ScaleMin = tupClimate[24]
-                    mate_ScaleMax = tupClimate[25]
-                    outsizevals_mu = tupClimate[26]
-                    backsizevals_mu = tupClimate[27]
-                    outgrowdays_mu = tupClimate[28]
-                    backgrowdays_mu = tupClimate[29]
-                    fitvals = tupClimate[30]
-                    K_mu = tupClimate[31]
-                    popmort_back_mu = tupClimate[32]
-                    popmort_out_mu = tupClimate[33]
-                    eggmort_mu = tupClimate[34]
-                    K_std = tupClimate[35]
-                    popmort_back_sd = tupClimate[36]
-                    popmort_out_sd = tupClimate[37]
-                    eggmort_sd = tupClimate[38]
-                    outsizevals_sd = tupClimate[39]
-                    backsizevals_sd = tupClimate[40]
-                    outgrowdays_sd = tupClimate[41]
-                    backgrowdays_sd = tupClimate[42]
-                    pop_capture_back = tupClimate[43]
-                    pop_capture_out = tupClimate[44]
-                    mateno = tupClimate[45]
-                    FdispOutno = tupClimate[46]
-                    MdispOutno = tupClimate[47]
-                    FdispBackno = tupClimate[48]
-                    MdispBackno = tupClimate[49]
-                    Strno = tupClimate[50]
-                    tempN0 = tupClimate[51]
-                    tempAllelefile = tupClimate[52]
-                    tempClassVarsfile = tupClimate[53]
-
                     # ----------------------------------------
                     # Introduce new individuals
                     # ----------------------------------------
                     if (gen != 0 and len(preprocess_params["N0_pass"][0].split('|')) > 1):
-                        SubpopIN = AddIndividuals(SubpopIN, tempN0, tempAllelefile, tempClassVarsfile, datadir,
+                        SubpopIN = AddIndividuals(SubpopIN, climate_params["tempN0"], climate_params["tempAllelefile"],
+                                                  climate_params["tempClassVarsfile"],
+                                                  datadir,
                                                   params['loci'],
                                                   params['alleles'], params['sizecontrol'], params['cdinfect'],
                                                   params['SNPanswer'],
                                                   params['cdevolveans'], params['startSelection'],
-                                                  fitvals,
+                                                  climate_params["fitvals"],
                                                   params['eggFrequency'], params['mature_length_female'],
                                                   params['mature_length_male'],
                                                   params['mature_int_female'], params['mature_slope_female'],
@@ -421,10 +368,18 @@ def doBatch(ibatch, params):
             # -------------------------------------------
             # Update stochastic parameters each year here
             # -------------------------------------------
-            tupStoch = DoStochasticUpdate(K_mu, K_std, popmort_back_mu, popmort_back_sd, popmort_out_mu, popmort_out_sd,
-                                          eggmort_mu, eggmort_sd, outsizevals_mu, outsizevals_sd, backsizevals_mu,
-                                          backsizevals_sd, outgrowdays_mu, outgrowdays_sd, backgrowdays_mu,
-                                          backgrowdays_sd, preprocess_params["age_percmort_out_mu"],
+            tupStoch = DoStochasticUpdate(climate_params["K_mu"], climate_params["K_std"], climate_params["popmort_back_mu"],
+                                          climate_params["popmort_back_sd"],
+                                          climate_params["popmort_out_mu"],
+                                          climate_params["popmort_out_sd"],
+                                          climate_params["eggmort_mu"], climate_params["eggmort_sd"],
+                                          climate_params["outsizevals_mu"],
+                                          climate_params["outsizevals_sd"],
+                                          climate_params["backsizevals_mu"],
+                                          climate_params["backsizevals_sd"], climate_params["outgrowdays_mu"],
+                                          climate_params["outgrowdays_sd"],
+                                          climate_params["backgrowdays_mu"],
+                                          climate_params["backgrowdays_sd"], preprocess_params["age_percmort_out_mu"],
                                           preprocess_params["age_percmort_out_sd"],
                                           preprocess_params["age_percmort_back_mu"],
                                           preprocess_params["age_percmort_back_sd"],
@@ -460,12 +415,12 @@ def doBatch(ibatch, params):
             start_time1 = datetime.datetime.now()
 
             Bearpairs = DoMate(SubpopIN, K, \
-                               params['Freplace'], params['Mreplace'], mateno, thresh_mate, \
-                               cdmatrix_mate, Track_MateDistCD, preprocess_params["xgridpop"], \
+                               params['Freplace'], params['Mreplace'], climate_params["mateno"], climate_params["thresh_mate"], \
+                               climate_params["cdmatrix_mate"], Track_MateDistCD, preprocess_params["xgridpop"], \
                                preprocess_params["ygridpop"], Track_MateDistCDstd, Track_FAvgMate, Track_MAvgMate,
                                Track_FSDMate,
                                Track_MSDMate, Track_BreedEvents, gen, sourcePop, preprocess_params["dtype"],
-                               mate_ScaleMax, mate_ScaleMin,
+                               climate_params["mate_ScaleMax"], climate_params["mate_ScaleMin"],
                                params['matemoveparA'], params['matemoveparB'], params['matemoveparC'],
                                params['Egg_FemalePercent'], params['eggFrequency'],
                                params['sexans'], params['selfans'])
@@ -510,10 +465,10 @@ def doBatch(ibatch, params):
                                 params['loci'],
                                 params['alleles'],
                                 logfHndl,
-                                'Middle', params['growth_option'], params['cdevolveans'], fitvals,
+                                'Middle', params['growth_option'], params['cdevolveans'], climate_params["fitvals"],
                                 params['startSelection'],
                                 preprocess_params["age_capture_back"],
-                                pop_capture_back,
+                                climate_params["pop_capture_back"],
                                 Track_CaptureCount_Back, Track_CaptureCount_ClassBack, params['sizecontrol'],
                                 preprocess_params["age_size_mean"],
                                 Track_N_back_age,
@@ -540,15 +495,17 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            SubpopIN = DoEmigration(SubpopIN, K, FdispOutno, \
-                                    MdispOutno, cdmatrix_FOut, cdmatrix_MOut, gen, preprocess_params["xgridpop"],
+            SubpopIN = DoEmigration(SubpopIN, K, climate_params["FdispOutno"], \
+                                    climate_params["MdispOutno"], climate_params["cdmatrix_FOut"], climate_params["cdmatrix_MOut"],
+                                    gen,
+                                    preprocess_params["xgridpop"],
                                     preprocess_params["ygridpop"], F_EmiDist,
-                                    M_EmiDist, params['cdevolveans'], fitvals, F_EmiDist_sd, M_EmiDist_sd,
+                                    M_EmiDist, params['cdevolveans'], climate_params["fitvals"], F_EmiDist_sd, M_EmiDist_sd,
                                     preprocess_params["subpopemigration"], \
                                     SelectionDeathsEmi, DisperseDeathsEmi, \
-                                    params['startSelection'], Mg, \
+                                    params['startSelection'], climate_params["Mg"], \
                                     MgSuccess, AdultNoMg, sum(params['alleles']), preprocess_params["age_Mg"],
-                                    thresh_FOut, thresh_MOut,
+                                    climate_params["thresh_FOut"], climate_params["thresh_MOut"],
                                     N_Emigration_pop, sourcePop, preprocess_params["dtype"],
                                     preprocess_params["setmigrate"],
                                     params['sizecontrol'],
@@ -556,7 +513,9 @@ def doBatch(ibatch, params):
                                     PackingDeathsEmi, N_Emigration_age, params['loci'], params['muterate'],
                                     params['mtdna'],
                                     params['mutationtype'],
-                                    FdispOut_ScaleMax, FdispOut_ScaleMin, MdispOut_ScaleMax, MdispOut_ScaleMin,
+                                    climate_params["FdispOut_ScaleMax"], climate_params["FdispOut_ScaleMin"],
+                                    climate_params["MdispOut_ScaleMax"],
+                                    climate_params["MdispOut_ScaleMin"],
                                     params['FdispmoveOutparA'], params['FdispmoveOutparB'], params['FdispmoveOutparC'],
                                     params['MdispmoveOutparA'], params['MdispmoveOutparB'], params['MdispmoveOutparC'],
                                     params['popmodel'],
@@ -598,7 +557,7 @@ def doBatch(ibatch, params):
                                 logfHndl,
                                 params['gridsampling'], params['growth_option'], 'N', [], params['startSelection'],
                                 preprocess_params["age_capture_out"],
-                                pop_capture_out,
+                                climate_params["pop_capture_out"],
                                 Track_CaptureCount_Out, Track_CaptureCount_ClassOut, params['sizecontrol'],
                                 preprocess_params["age_size_mean"],
                                 Track_N_out_age,
@@ -617,25 +576,31 @@ def doBatch(ibatch, params):
             # ------------------------------------------
             start_time1 = datetime.datetime.now()  # Timing events: start
 
-            SubpopIN = DoImmigration(SubpopIN, K, preprocess_params["N0"], preprocess_params["natal"], FdispBackno, \
-                                     MdispBackno, cdmatrix_FBack, cdmatrix_MBack, gen, \
+            SubpopIN = DoImmigration(SubpopIN, K, preprocess_params["N0"], preprocess_params["natal"],
+                                     climate_params["FdispBackno"], \
+                                     climate_params["MdispBackno"], climate_params["cdmatrix_FBack"],
+                                     climate_params["cdmatrix_MBack"], gen, \
                                      preprocess_params["xgridpop"], preprocess_params["ygridpop"],
-                                     params['cdevolveans'], fitvals,
+                                     params['cdevolveans'], climate_params["fitvals"],
                                      preprocess_params["subpopimmigration"], \
-                                     SelectionDeathsImm, DisperseDeathsImm, params['startSelection'], Str, \
+                                     SelectionDeathsImm, DisperseDeathsImm, params['startSelection'], climate_params["Str"], \
                                      StrSuccess, \
-                                     Strno, cdmatrix_StrBack, preprocess_params["age_S"], thresh_FBack, thresh_MBack,
-                                     thresh_Str,
+                                     climate_params["Strno"], climate_params["cdmatrix_StrBack"], preprocess_params["age_S"],
+                                     climate_params["thresh_FBack"],
+                                     climate_params["thresh_MBack"],
+                                     climate_params["thresh_Str"],
                                      N_Immigration_pop, preprocess_params["dtype"], params['sizecontrol'],
                                      preprocess_params["age_size_mean"], PackingDeathsImm,
-                                     N_Immigration_age, FdispBack_ScaleMax, FdispBack_ScaleMin, MdispBack_ScaleMax,
-                                     MdispBack_ScaleMin,
+                                     N_Immigration_age, climate_params["FdispBack_ScaleMax"],
+                                     climate_params["FdispBack_ScaleMin"],
+                                     climate_params["MdispBack_ScaleMax"],
+                                     climate_params["MdispBack_ScaleMin"],
                                      params['FdispmoveBackparA'], params['FdispmoveBackparB'],
                                      params['FdispmoveBackparC'],
                                      params['MdispmoveBackparA'], params['MdispmoveBackparB'],
                                      params['MdispmoveBackparC'],
-                                     Str_ScaleMax,
-                                     Str_ScaleMin, params['StrayBackparA'], params['StrayBackparB'],
+                                     climate_params["Str_ScaleMax"],
+                                     climate_params["Str_ScaleMin"], params['StrayBackparA'], params['StrayBackparB'],
                                      params['StrayBackparC'],
                                      params['popmodel'],
                                      PackingDeathsImmAge,

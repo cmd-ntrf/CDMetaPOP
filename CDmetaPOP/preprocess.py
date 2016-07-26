@@ -1373,15 +1373,36 @@ def DoCDClimate(datadir,icdtime,cdclimgentime,matecdmatfile,dispOutcdmatfile,dis
         Str_ScaleMax = tupReadMat[3]
 
     # Return this functions variables
-    tupClimate = matecdmatrix,FdispOutcdmatrix,MdispOutcdmatrix,FdispBackcdmatrix,MdispBackcdmatrix,\
-    StrBackcdmatrix,matemovethresh,\
-    FdispmoveOutthresh,MdispmoveOutthresh,\
-    FdispmoveBackthresh,MdispmoveBackthresh,StrBackthresh,tempMg,tempStr,Str_ScaleMin,Str_ScaleMax,FdispBack_ScaleMin,FdispBack_ScaleMax,MdispBack_ScaleMin,MdispBack_ScaleMax,FdispOut_ScaleMin,FdispOut_ScaleMax,MdispOut_ScaleMin,MdispOut_ScaleMax,mate_ScaleMin,mate_ScaleMax,tempoutsize,tempbacksize,tempoutgrow,tempbackgrow,tempfitvals,tempK,temppopmort_back,temppopmort_out,tempeggmort,tempKstd,temppopmort_back_sd,temppopmort_out_sd,tempeggmort_sd,tempoutsize_sd,tempbacksize_sd,tempoutgrow_sd,tempbackgrow_sd,temppopCapBack,temppopCapOut,matemoveno,FdispmoveOutno,MdispmoveOutno,FdispmoveBackno,MdispmoveBackno,StrBackno,tempN0,tempAllelefile,tempClassVarsfile
-    return tupClimate
-    #End::DoCDClimate()
+    return {"cdmatrix_mate": matecdmatrix, "cdmatrix_FOut": FdispOutcdmatrix, "cdmatrix_MOut": MdispOutcdmatrix,
+            "cdmatrix_FBack": FdispBackcdmatrix, "cdmatrix_MBack": MdispBackcdmatrix, "cdmatrix_StrBack": StrBackcdmatrix,
+            "thresh_mate": matemovethresh, "thresh_FOut": FdispmoveOutthresh, "thresh_MOut": MdispmoveOutthresh,
+            "thresh_FBack": FdispmoveBackthresh, "thresh_MBack": MdispmoveBackthresh, "thresh_Str": StrBackthresh,
+            "Mg": tempMg, "Str": tempStr, "Str_ScaleMin": Str_ScaleMin, "Str_ScaleMax": Str_ScaleMax,
+            "FdispBack_ScaleMin": FdispBack_ScaleMin, "FdispBack_ScaleMax": FdispBack_ScaleMax,
+            "MdispBack_ScaleMin": MdispBack_ScaleMin, "MdispBack_ScaleMax": MdispBack_ScaleMax,
+            "FdispOut_ScaleMin": FdispOut_ScaleMin, "FdispOut_ScaleMax": FdispOut_ScaleMax,
+            "MdispOut_ScaleMin": MdispOut_ScaleMin, "MdispOut_ScaleMax": MdispOut_ScaleMax,
+            "mate_ScaleMin": mate_ScaleMin, "mate_ScaleMax": mate_ScaleMax, "outsizevals_mu": tempoutsize,
+            "backsizevals_mu": tempbacksize, "outgrowdays_mu": tempoutgrow, "backgrowdays_mu": tempbackgrow,
+            "fitvals": tempfitvals, "K_mu": tempK, "popmort_back_mu": temppopmort_back,
+            "popmort_out_mu": temppopmort_out, "eggmort_mu": tempeggmort, "K_std": tempKstd,
+            "popmort_back_sd": temppopmort_back_sd, "popmort_out_sd": temppopmort_out_sd, "eggmort_sd": tempeggmort_sd,
+            "outsizevals_sd": tempoutsize_sd, "backsizevals_sd": tempbacksize_sd, "outgrowdays_sd": tempoutgrow_sd,
+            "backgrowdays_sd": tempbackgrow_sd, "pop_capture_back": temppopCapBack, "pop_capture_out": temppopCapOut,
+            "mateno": matemoveno, "FdispOutno": FdispmoveOutno, "MdispOutno": MdispmoveOutno,
+            "FdispBackno": FdispmoveBackno, "MdispBackno": MdispmoveBackno, "Strno": StrBackno, "tempN0": tempN0,
+            "tempAllelefile": tempAllelefile, "tempClassVarsfile": tempClassVarsfile}
 
-# ---------------------------------------------------------------------------------------------------	
-def DoStochasticUpdate(K_mu,K_std,popmort_back_mu,popmort_back_sd,popmort_out_mu,popmort_out_sd,eggmort_mu,eggmort_sd,outsizevals_mu,outsizevals_sd,backsizevals_mu,backsizevals_sd,outgrowdays_mu,outgrowdays_sd,backgrowdays_mu,backgrowdays_sd,age_percmort_out_mu,age_percmort_out_sd,age_percmort_back_mu,age_percmort_back_sd,size_percmort_out_mu,size_percmort_out_sd,size_percmort_back_mu,size_percmort_back_sd,age_percmort_back_mu_egg,age_percmort_back_sd_egg,cor_mat):	
+    # End::DoCDClimate()
+
+
+# ---------------------------------------------------------------------------------------------------
+def DoStochasticUpdate(K_mu, K_std, popmort_back_mu, popmort_back_sd, popmort_out_mu, popmort_out_sd, eggmort_mu,
+                       eggmort_sd, outsizevals_mu, outsizevals_sd, backsizevals_mu, backsizevals_sd, outgrowdays_mu,
+                       outgrowdays_sd, backgrowdays_mu, backgrowdays_sd, age_percmort_out_mu, age_percmort_out_sd,
+                       age_percmort_back_mu, age_percmort_back_sd, size_percmort_out_mu, size_percmort_out_sd,
+                       size_percmort_back_mu, size_percmort_back_sd, age_percmort_back_mu_egg, age_percmort_back_sd_egg,
+                       cor_mat):
     '''
     Here update any stochastic variables. Add in Todd and Ng method for unbias draw.
     Generate correlated deviates
