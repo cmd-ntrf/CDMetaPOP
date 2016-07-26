@@ -199,13 +199,7 @@ def doBatch(ibatch, params):
         start_time1 = datetime.datetime.now()
 
         # Call function
-        preprocess_params = DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, params['loci'],
-                                         params['alleles'], params['cdevolveans'], params['cdinfect'],
-                                         params['sizecontrol'], params['eggFrequency'], params['mature_length_female'],
-                                         params['mature_length_male'], params['mature_int_female'],
-                                         params['mature_slope_female'], params['mature_int_male'],
-                                         params['mature_slope_male'], params['startSelection'],
-                                         params['correlation_matrix'], params['SNPanswer'])
+        preprocess_params = DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, params)
 
         # Grab first one only
         K = preprocess_params["K_mu"] # Initialize K with mu

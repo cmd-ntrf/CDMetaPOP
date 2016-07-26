@@ -1775,8 +1775,7 @@ def DoStochasticUpdate(K_mu, K_std, popmort_back_mu, popmort_back_sd, popmort_ou
 
 
 # ---------------------------------------------------------------------------------------------------
-def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, cdevolveans, cdinfect, sizeans, eggFreq,
-                 Fmat_set, Mmat_set, Fmat_int, Fmat_slope, Mmat_int, Mmat_slope, burningen, cor_mat_ans, SNPans):
+def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, params):
     '''
     DoPreProcess()
     This function does all the pre-processing work before
@@ -1861,14 +1860,15 @@ def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, c
         pop_capture_out.append(xy[i+1][27])
         pop_capture_back_pass.append(xy[i+1][28])
 
-        if cdevolveans == '1' or cdevolveans == 'M' or cdevolveans == '1_mat' or cdevolveans == 'stray':
-            fitvals.append([xy[i+1][29],xy[i+1][30],xy[i+1][31]])
-        elif cdevolveans == 'G':
-            fitvals.append([xy[i+1][32],xy[i+1][33],xy[i+1][34]])
-        elif cdevolveans == '2' or cdevolveans == '2_mat':
-            fitvals.append([xy[i+1][35],xy[i+1][36],xy[i+1][37],xy[i+1][38],xy[i+1][39],xy[i+1][40],xy[i+1][41],xy[i+1][42],xy[i+1][43]])
-        elif cdevolveans == 'MG_ind' or cdevolveans == 'MG_link' or cdevolveans == '1_G_ind' or cdevolveans == '1_G_link':
-            fitvals.append([xy[i+1][29],xy[i+1][30],xy[i+1][31],xy[i+1][32],xy[i+1][33],xy[i+1][34]])
+        if params['cdevolveans'] == '1' or params['cdevolveans'] == 'M' or params['cdevolveans'] == '1_mat' or params['cdevolveans'] == 'stray':
+            fitvals.append([xy[i + 1][29], xy[i + 1][30], xy[i + 1][31]])
+        elif params['cdevolveans'] == 'G':
+            fitvals.append([xy[i + 1][32], xy[i + 1][33], xy[i + 1][34]])
+        elif params['cdevolveans'] == '2' or params['cdevolveans'] == '2_mat':
+            fitvals.append([xy[i + 1][35], xy[i + 1][36], xy[i + 1][37], xy[i + 1][38], xy[i + 1][39], xy[i + 1][40],
+                            xy[i + 1][41], xy[i + 1][42], xy[i + 1][43]])
+        elif params['cdevolveans'] == 'MG_ind' or params['cdevolveans'] == 'MG_link' or params['cdevolveans'] == '1_G_ind' or params['cdevolveans'] == '1_G_link':
+            fitvals.append([xy[i + 1][29], xy[i + 1][30], xy[i + 1][31], xy[i + 1][32], xy[i + 1][33], xy[i + 1][34]])
 
     # Delete x variable
     del(xy)
@@ -1876,11 +1876,11 @@ def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, c
     # --------------------------------------------
     # Read in correlation matrix
     # --------------------------------------------
-    if cor_mat_ans == 'N':
+    if params['correlation_matrix'] == 'N':
         cor_mat = 'N'
     else:
-        cor_mat = ReadXY(datadir+cor_mat_ans)
-        cor_mat = np.asarray(np.asarray(cor_mat)[1:,1:],dtype='float')
+        cor_mat = ReadXY(datadir + params['correlation_matrix'])
+        cor_mat = np.asarray(np.asarray(cor_mat)[1:, 1:], dtype='float')
 
     # -----------------------------------------------------------------------
     # Extract variables needed for initialization that very with cdclimategen
@@ -1939,13 +1939,31 @@ def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, c
     # --------------------------------------------
     # Initialize genetic structure - distribution
     # --------------------------------------------
-    allelst = InitializeGenes(datadir,allefreqfiles,loci,alleles)
+    allelst = InitializeGenes(datadir, allefreqfiles, params['loci'], params['alleles'])
 
     # ------------------------------------------------------------------
     # Initialize rest of variables: age,sex,infection,genes,size,mature
     # ------------------------------------------------------------------
-    age,sex,size,infection,genes,mature,capture,layEggs,recapture = InitializeVars(Femalepercent,agelst,cdinfect,loci,alleles,allelst,\
-    age_size_mean,age_size_std,subpop,M_mature,F_mature,eggFreq,sizeans,Fmat_set,Mmat_set,Fmat_int,Fmat_slope,Mmat_int,Mmat_slope,cdevolveans,fitvals,burningen,SNPans,'N')
+    age, sex, size, infection, genes, mature, capture, layEggs, recapture = InitializeVars(Femalepercent, agelst,
+                                                                                           params['cdinfect'],
+                                                                                           params['loci'],
+                                                                                           params['alleles'],
+                                                                                           allelst,
+                                                                                           age_size_mean, age_size_std,
+                                                                                           subpop, M_mature, F_mature,
+                                                                                           params['eggFrequency'],
+                                                                                           params['sizecontrol'],
+                                                                                           params['mature_length_female'],
+                                                                                           params['mature_length_male'],
+                                                                                           params['mature_int_female'],
+                                                                                           params['mature_slope_female'],
+                                                                                           params['mature_int_male'],
+                                                                                           params['mature_slope_male'],
+                                                                                           params['cdevolveans'],
+                                                                                           fitvals,
+                                                                                           params['startSelection'],
+                                                                                           params['SNPanswer'],
+                                                                                           'N')
 
     # ----------------------------------------------
     # Store class variable SubpopIN_Init
@@ -1956,7 +1974,12 @@ def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, c
     unisubpops = len(Pop)
 
     # Organize type data in SubpopIN - here return this and also update dynamically.
-    dtype = [('NatalPop',(str,len(str(unisubpops))+1)),('EmiPop',(str,len(str(unisubpops))+1)),('ImmiPop',(str,len(str(unisubpops))+1)),('EmiCD',float),('ImmiCD',float),('age',int),('sex',int),('size',float),('mature',int),('newmature',int),('infection',int),('name',(str,100)),('capture',int),('recapture',int),('layeggs',float),('genes',(str,3*sum(alleles)+2*loci+2))]
+    dtype = [('NatalPop', (str, len(str(unisubpops)) + 1)), ('EmiPop', (str, len(str(unisubpops)) + 1)),
+             ('ImmiPop', (str, len(str(unisubpops)) + 1)), ('EmiCD', float), ('ImmiCD', float), ('age', int),
+             ('sex', int), ('size', float), ('mature', int), ('newmature', int), ('infection', int),
+             ('name', (str, 100)), ('capture', int), ('recapture', int), ('layeggs', float), ('genes', (str, 3 * sum(
+            params['alleles']) + 2 *
+                                                                                                        params['loci'] + 2))]
 
     # Get N here - N maybe slighlty different then specified due to random draws
     N = []
