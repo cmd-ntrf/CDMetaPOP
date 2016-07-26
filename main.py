@@ -43,97 +43,12 @@ def doBatch(ibatch, params):
     # Store all information and the type of each, also do some error checks
     xyfilename = datadir+params['xyfilename']
     #agefilename = datadir+params['agefilename']
-    constMortans = params['constMortans']
-    mcruns = params['mcruns']
-    looptime = params['runtime']
-    nthfile_out = params['output_years']
-    outputans = params['summaryOutput']
-    cdclimgentimelist = params['cdclimgentime']
-    matecdmatfile = params['mate_cdmat']
-    dispOutcdmatfile = params['dispout_cdmat']
-    dispBackcdmatfile = params['dispback_cdmat']
-    straycdmatfile = params['stray_cdmat']
-    matemoveno = params['matemoveno']
-    matemoveparA = params['matemoveparA']
-    matemoveparB = params['matemoveparB']
-    matemoveparC = params['matemoveparC']
-    matemovethreshval = params['matemovethresh']
-    freplace = params['Freplace']
-    mreplace = params['Mreplace']
-    selfing = params['selfans']
-    sexans = params['sexans']
-    FdispmoveOutno = params['FdispmoveOutno']
-    FdispmoveOutparA = params['FdispmoveOutparA']
-    FdispmoveOutparB = params['FdispmoveOutparB']
-    FdispmoveOutparC = params['FdispmoveOutparC']
-    FdispmoveOutthreshval = params['FdispmoveOutthresh']
-    MdispmoveOutno = params['MdispmoveOutno']
-    MdispmoveOutparA = params['MdispmoveOutparA']
-    MdispmoveOutparB = params['MdispmoveOutparB']
-    MdispmoveOutparC = params['MdispmoveOutparC']
-    MdispmoveOutthreshval = params['MdispmoveOutthresh']
-    FdispmoveBackno = params['FdispmoveBackno']
-    FdispmoveBackparA = params['FdispmoveBackparA']
-    FdispmoveBackparB = params['FdispmoveBackparB']
-    FdispmoveBackparC = params['FdispmoveBackparC']
-    FdispmoveBackthreshval = params['FdispmoveBackthresh']
-    MdispmoveBackno = params['MdispmoveBackno']
-    MdispmoveBackparA = params['MdispmoveBackparA']
-    MdispmoveBackparB = params['MdispmoveBackparB']
-    MdispmoveBackparC = params['MdispmoveBackparC']
-    MdispmoveBackthreshval = params['MdispmoveBackthresh']
-    StrBackno = params['StrayBackno']
-    StrBackparA = params['StrayBackparA']
-    StrBackparB = params['StrayBackparB']
-    StrBackparC = params['StrayBackparC']
-    StrBackthreshval = params['StrayBackthresh']
-    homeattempt = params['HomeAttempt']
-    offno = params['offno']
-    equalClutch = params['equalClutchSize']
-    eggFreq = params['eggFrequency']
-    gendmatans = params['gendmatans']
-    gridformat = params['gridformat']
-    gridsample = params['gridsampling']
-    muterate = params['muterate']
-    mutationans = params['mutationtype']
-    loci = params['loci']
-    alleles = params['alleles']
-    SNPans = params['SNPanswer']
-    mtdna = params['mtdna']
-    geneswap = params['startGenes']
-    cdevolveans = params['cdevolveans']
-    burningen = params['startSelection']
-    timecdevolve = params['implementSelection']
-    cdinfect = params['cdinfect']
-    transmissionprob = params['transmissionprob']
-    growans = params['growth_option']
-    sizeLoo = params['growth_Loo']
-    sizeR0 = params['growth_R0']
-    size_eqn_1 = params['growth_temp_max']
-    size_eqn_2 = params['growth_temp_CV']
-    size_eqn_3 = params['growth_temp_t0']
-    sizeans = params['sizecontrol']
-    Mmat_set = params['mature_length_male']
-    Fmat_set = params['mature_length_female']
-    Mmat_slope = params['mature_slope_male']
-    Mmat_int = params['mature_int_male']
-    Fmat_slope = params['mature_slope_female']
-    Fmat_int = params['mature_int_female']
-    egg_mean_ans = params['Egg_Mean_ans']
-    egg_mean_1 = params['Egg_Mean_par1']
-    egg_mean_2 = params['Egg_Mean_par2']
-    egg_percmort_mu = params['Egg_Mortality']
-    egg_percmort_sd = params['Egg_Mortality_StDev']
-    Femalepercent_egg = params['Egg_FemalePercent']
-    packans = params['popmodel']
-    packpar1 = params['popmodel_par1']
-    cor_mat_ans = params['correlation_matrix']
 
     # Grab the nthfile list range specific to user input, list or sequence
-    if not isinstance(nthfile_out, (list,tuple)):
-        nthfile_out = int(nthfile_out)
-        if nthfile_out != 0:
-            nthfile = range(0,looptime+nthfile_out,nthfile_out)
+    if not isinstance(params['output_years'], (list,tuple)):
+        params['output_years'] = int(params['output_years'])
+        if params['output_years'] != 0:
+            nthfile = range(0,params['runtime']+params['output_years'],params['output_years'])
             del(nthfile[-1]) # Delete the last value 0, looptime - 1
         else:
             nthfile = [0]
@@ -141,21 +56,21 @@ def doBatch(ibatch, params):
     else:
         nthfile = []
         # Split up list, removing space values, and appending to nthfile
-        for inum in xrange(len(nthfile_out)):
+        for inum in xrange(len(params['output_years'])):
             # Error check here if | at the end
-            if len(nthfile_out[inum]) != 0:
-                nthfile.append(int(nthfile_out[inum]))
+            if len(params['output_years'][inum]) != 0:
+                nthfile.append(int(params['output_years'][inum]))
 
     # Error check on nthfile, must be 1 less than looptime for indexing
-    if max(nthfile) >= looptime:
+    if max(nthfile) >= params['runtime']:
         print('nthfile selection maximum value must be less than to looptime.')
         sys.exit(-1)
 
     # Store cdmat file information - header file (loadFile()) passes tuple or string if only 1
-    if not isinstance(cdclimgentimelist, (list,tuple)):
-        cdclimgentime = [cdclimgentimelist]
+    if not isinstance(params['cdclimgentime'], (list,tuple)):
+        cdclimgentime = [params['cdclimgentime']]
     else:
-        cdclimgentime = cdclimgentimelist
+        cdclimgentime = params['cdclimgentime']
 
 
     # ---------------------------------------------
@@ -163,7 +78,7 @@ def doBatch(ibatch, params):
     # ---------------------------------------------
 
     # xrange(mcruns) is typically 10 - 50...and it takes a long time.
-    for ithmcrun in xrange(mcruns):
+    for ithmcrun in xrange(params['mcruns']):
 
         # Timing events: start
         start_timeMC = datetime.datetime.now()
@@ -286,10 +201,18 @@ def doBatch(ibatch, params):
         start_time1 = datetime.datetime.now()
 
         # Call function
-        tupPreProcess = DoPreProcess(outdir,datadir,ibatch,ithmcrun,\
-        xyfilename,loci,alleles,\
-        0,logfHndl,cdevolveans,cdinfect,\
-        subpopemigration,subpopimmigration,sizeans,geneswap,eggFreq,Fmat_set,Mmat_set,Fmat_int,Fmat_slope,Mmat_int,Mmat_slope,burningen,cor_mat_ans,SNPans)
+        tupPreProcess = DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, params['loci'], params['alleles'],
+                                     params['cdevolveans'],
+                                     params['cdinfect'], subpopemigration, subpopimmigration, params['sizecontrol'],
+                                     params['eggFrequency'],
+                                     params['mature_length_female'],
+                                     params['mature_length_male'], params['mature_int_female'],
+                                     params['mature_slope_female'],
+                                     params['mature_int_male'],
+                                     params['mature_slope_male'],
+                                     params['startSelection'],
+                                     params['correlation_matrix'],
+                                     params['SNPanswer'])
 
         ithmcrundir = tupPreProcess[0]
         fitvals_pass = tupPreProcess[1]
@@ -365,7 +288,14 @@ def doBatch(ibatch, params):
         # Timing events: start
         start_time1 = datetime.datetime.now()
 
-        GetMetrics(SubpopIN_init,K,Track_N_Init_pop,Track_K,loci,alleles,0,Track_Ho,Track_Alleles,Track_He,Track_p1,Track_p2,Track_q1,Track_q2,Infected,Residors,Strayers1,Strayers2,Immigrators,PopSizes_Mean,PopSizes_Std,AgeSizes_Mean,AgeSizes_Std,Track_ToTMales,Track_ToTFemales,Track_BreedMales,Track_BreedFemales,Track_N_Init_age,Track_MatureCount,Track_ImmatureCount,sizeans,age_size_mean,ClassSizes_Mean,ClassSizes_Std,Track_N_Init_class,sexans,SNPans)
+        GetMetrics(SubpopIN_init, K, Track_N_Init_pop, Track_K, params['loci'], params['alleles'], 0, Track_Ho,
+                   Track_Alleles,
+                   Track_He,
+                   Track_p1, Track_p2, Track_q1, Track_q2, Infected, Residors, Strayers1, Strayers2, Immigrators,
+                   PopSizes_Mean, PopSizes_Std, AgeSizes_Mean, AgeSizes_Std, Track_ToTMales, Track_ToTFemales,
+                   Track_BreedMales, Track_BreedFemales, Track_N_Init_age, Track_MatureCount, Track_ImmatureCount,
+                   params['sizecontrol'], age_size_mean, ClassSizes_Mean, ClassSizes_Std, Track_N_Init_class,
+                   params['sexans'], params['SNPanswer'])
 
         # Print to log
         stringout = 'GetMetrics() Initial: '+str(datetime.datetime.now() -start_time1) + ''
@@ -387,7 +317,9 @@ def doBatch(ibatch, params):
         # Timing events: start
         start_time1 = datetime.datetime.now()
 
-        DoUpdate(SubpopIN_init,K,xgridpop,ygridpop,-1,nthfile,ithmcrundir,loci,alleles,logfHndl,'Initial','N','N',[],burningen,[],[],[],[],[],[])
+        DoUpdate(SubpopIN_init, K, xgridpop, ygridpop, -1, nthfile, ithmcrundir, params['loci'], params['alleles'],
+                 logfHndl,
+                 'Initial', 'N', 'N', [], params['startSelection'], [], [], [], [], [], [])
 
         # Print to log
         stringout = 'DoUpdate(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -398,7 +330,7 @@ def doBatch(ibatch, params):
         # Start Generation Looping
         # -------------------------------------------
         # Begin generation loop
-        for gen in xrange(looptime):
+        for gen in xrange(params['runtime']):
 
             # Timing events: start
             start_timeGen = datetime.datetime.now()
@@ -429,12 +361,38 @@ def doBatch(ibatch, params):
             # Check gen time equal to cdclimgentime
             for icdtime in xrange(len(cdclimgentime)):
                 if gen == int(cdclimgentime[icdtime]):
-                    tupClimate = DoCDClimate(datadir,icdtime,cdclimgentime,matecdmatfile,dispOutcdmatfile,\
-                    dispBackcdmatfile,straycdmatfile,matemoveno,FdispmoveOutno,MdispmoveOutno,FdispmoveBackno,MdispmoveBackno,StrBackno,matemovethreshval,FdispmoveOutthreshval,MdispmoveOutthreshval,FdispmoveBackthreshval,MdispmoveBackthreshval,StrBackthreshval,\
-                    matemoveparA,matemoveparB,matemoveparC,FdispmoveOutparA,\
-                    FdispmoveOutparB,FdispmoveOutparC,MdispmoveOutparA,MdispmoveOutparB,MdispmoveOutparC,\
-                    FdispmoveBackparA,\
-                    FdispmoveBackparB,FdispmoveBackparC,MdispmoveBackparA,MdispmoveBackparB,MdispmoveBackparC,StrBackparA,StrBackparB,StrBackparC,Mg_pass,Str_pass,Kmu_pass,outsizevals_pass,backsizevals_pass,outgrowdays_pass,backgrowdays_pass,fitvals_pass,popmort_back_pass,popmort_out_pass,eggmort_pass,Kstd_pass,popmort_back_sd_pass,popmort_out_sd_pass,eggmort_sd_pass,outsizevals_sd_pass,backsizevals_sd_pass,outgrowdays_sd_pass,backgrowdays_sd_pass,pop_capture_back_pass,pop_capture_out_pass,cdevolveans,N0_pass,		allefreqfiles_pass,classvarsfiles_pass)
+                    tupClimate = DoCDClimate(datadir, icdtime, cdclimgentime, params['mate_cdmat'],
+                                             params['dispout_cdmat'],
+                                             params['dispback_cdmat'], params['stray_cdmat'], params['matemoveno'],
+                                             params['FdispmoveOutno'],
+                                             params['MdispmoveOutno'], params['FdispmoveBackno'],
+                                             params['MdispmoveBackno'],
+                                             params['StrayBackno'],
+                                             params['matemovethresh'], params['FdispmoveOutthresh'],
+                                             params['MdispmoveOutthresh'],
+                                             params['FdispmoveBackthresh'], params['MdispmoveBackthresh'],
+                                             params['StrayBackthresh'],
+                                             params['matemoveparA'], params['matemoveparB'], params['matemoveparC'],
+                                             params['FdispmoveOutparA'],
+                                             params['FdispmoveOutparB'], params['FdispmoveOutparC'],
+                                             params['MdispmoveOutparA'],
+                                             params['MdispmoveOutparB'],
+                                             params['MdispmoveOutparC'],
+                                             params['FdispmoveBackparA'],
+                                             params['FdispmoveBackparB'], params['FdispmoveBackparC'],
+                                             params['MdispmoveBackparA'],
+                                             params['MdispmoveBackparB'],
+                                             params['MdispmoveBackparC'], params['StrayBackparA'],
+                                             params['StrayBackparB'],
+                                             params['StrayBackparC'],
+                                             Mg_pass,
+                                             Str_pass, Kmu_pass, outsizevals_pass, backsizevals_pass, outgrowdays_pass,
+                                             backgrowdays_pass, fitvals_pass, popmort_back_pass, popmort_out_pass,
+                                             eggmort_pass, Kstd_pass, popmort_back_sd_pass, popmort_out_sd_pass,
+                                             eggmort_sd_pass, outsizevals_sd_pass, backsizevals_sd_pass,
+                                             outgrowdays_sd_pass, backgrowdays_sd_pass, pop_capture_back_pass,
+                                             pop_capture_out_pass, params['cdevolveans'], N0_pass, allefreqfiles_pass,
+                                             classvarsfiles_pass)
 
                     cdmatrix_mate = tupClimate[0]
                     cdmatrix_FOut = tupClimate[1]
@@ -495,11 +453,27 @@ def doBatch(ibatch, params):
                     # Introduce new individuals
                     # ----------------------------------------
                     if (gen != 0 and len(N0_pass[0].split('|')) > 1):
-                        SubpopIN = AddIndividuals(SubpopIN,tempN0,tempAllelefile,tempClassVarsfile,datadir,loci,alleles,sizeans,cdinfect,SNPans,cdevolveans,burningen,fitvals,eggFreq,Fmat_set,Mmat_set,Fmat_int,Fmat_slope,Mmat_int,Mmat_slope,dtype,N0,natal,gen)
+                        SubpopIN = AddIndividuals(SubpopIN, tempN0, tempAllelefile, tempClassVarsfile, datadir,
+                                                  params['loci'],
+                                                  params['alleles'], params['sizecontrol'], params['cdinfect'],
+                                                  params['SNPanswer'],
+                                                  params['cdevolveans'], params['startSelection'],
+                                                  fitvals,
+                                                  params['eggFrequency'], params['mature_length_female'],
+                                                  params['mature_length_male'],
+                                                  params['mature_int_female'], params['mature_slope_female'],
+                                                  params['mature_int_male'], params['mature_slope_male'], dtype, N0,
+                                                  natal, gen)
             # -------------------------------------------
             # Update stochastic parameters each year here
             # -------------------------------------------
-            tupStoch = DoStochasticUpdate(K_mu,K_std,popmort_back_mu,popmort_back_sd,popmort_out_mu,popmort_out_sd,eggmort_mu,eggmort_sd,outsizevals_mu,outsizevals_sd,backsizevals_mu,backsizevals_sd,outgrowdays_mu,outgrowdays_sd,backgrowdays_mu,backgrowdays_sd,age_percmort_out_mu,age_percmort_out_sd,age_percmort_back_mu,age_percmort_back_sd,size_percmort_out_mu,size_percmort_out_sd,size_percmort_back_mu,size_percmort_back_sd,egg_percmort_mu,egg_percmort_sd,cor_mat)
+            tupStoch = DoStochasticUpdate(K_mu, K_std, popmort_back_mu, popmort_back_sd, popmort_out_mu, popmort_out_sd,
+                                          eggmort_mu, eggmort_sd, outsizevals_mu, outsizevals_sd, backsizevals_mu,
+                                          backsizevals_sd, outgrowdays_mu, outgrowdays_sd, backgrowdays_mu,
+                                          backgrowdays_sd, age_percmort_out_mu, age_percmort_out_sd,
+                                          age_percmort_back_mu, age_percmort_back_sd, size_percmort_out_mu,
+                                          size_percmort_out_sd, size_percmort_back_mu, size_percmort_back_sd,
+                                          params['Egg_Mortality'], params['Egg_Mortality_StDev'], cor_mat)
             K = tupStoch[0]
             popmort_back = tupStoch[1]
             popmort_out = tupStoch[2]
@@ -525,10 +499,14 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            Bearpairs = DoMate(SubpopIN,K,\
-            freplace,mreplace,mateno,thresh_mate,\
-            cdmatrix_mate,Track_MateDistCD,xgridpop,\
-            ygridpop,Track_MateDistCDstd,Track_FAvgMate,Track_MAvgMate,Track_FSDMate,Track_MSDMate,Track_BreedEvents,gen,sourcePop,dtype,mate_ScaleMax,mate_ScaleMin,matemoveparA,matemoveparB,matemoveparC,Femalepercent_egg,eggFreq,sexans,selfing)
+            Bearpairs = DoMate(SubpopIN, K, \
+                               params['Freplace'], params['Mreplace'], mateno, thresh_mate, \
+                               cdmatrix_mate, Track_MateDistCD, xgridpop, \
+                               ygridpop, Track_MateDistCDstd, Track_FAvgMate, Track_MAvgMate, Track_FSDMate,
+                               Track_MSDMate, Track_BreedEvents, gen, sourcePop, dtype, mate_ScaleMax, mate_ScaleMin,
+                               params['matemoveparA'], params['matemoveparB'], params['matemoveparC'],
+                               params['Egg_FemalePercent'], params['eggFrequency'],
+                               params['sexans'], params['selfans'])
 
             # Print to log
             stringout = 'DoMate(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -542,10 +520,15 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            noOffspring,Bearpairs = DoOffspring(offno,Bearpairs,\
-            Track_Births,transmissionprob,gen,K,sourcePop,\
-            age_mu,age_sigma,sizeans,\
-            egg_mean_1,egg_mean_2,egg_mean_ans,equalClutch,dtype,Mmat_set,Fmat_set,eggmort_patch,Track_EggDeaths,eggmort_pop)
+            noOffspring, Bearpairs = DoOffspring(params['offno'], Bearpairs, \
+                                                 Track_Births, params['transmissionprob'], gen, K, sourcePop, \
+                                                 age_mu, age_sigma, params['sizecontrol'], \
+                                                 params['Egg_Mean_par1'], params['Egg_Mean_par2'],
+                                                 params['Egg_Mean_ans'],
+                                                 params['equalClutchSize'], dtype,
+                                                 params['mature_length_male'], params['mature_length_female'],
+                                                 eggmort_patch, Track_EggDeaths,
+                                                 eggmort_pop)
 
             # Print to log
             stringout = 'DoOffspring(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -559,7 +542,25 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            SubpopIN = DoUpdate(SubpopIN,K,xgridpop,ygridpop,gen,nthfile,ithmcrundir,loci,alleles,logfHndl,'Middle',growans,cdevolveans,fitvals,burningen,age_capture_back,pop_capture_back,Track_CaptureCount_Back,Track_CaptureCount_ClassBack,sizeans,age_size_mean,Track_N_back_age,eggFreq,backsizevals,sizeLoo,sizeR0,size_eqn_1,size_eqn_2,size_eqn_3,backgrowdays,sourcePop,sizeans,M_mature,F_mature,Mmat_slope,Mmat_int,Fmat_slope,Fmat_int,Mmat_set,Fmat_set)
+            SubpopIN = DoUpdate(SubpopIN, K, xgridpop, ygridpop, gen, nthfile, ithmcrundir, params['loci'],
+                                params['alleles'],
+                                logfHndl,
+                                'Middle', params['growth_option'], params['cdevolveans'], fitvals,
+                                params['startSelection'],
+                                age_capture_back,
+                                pop_capture_back,
+                                Track_CaptureCount_Back, Track_CaptureCount_ClassBack, params['sizecontrol'],
+                                age_size_mean,
+                                Track_N_back_age,
+                                params['eggFrequency'], backsizevals, params['growth_Loo'], params['growth_R0'],
+                                params['growth_temp_max'],
+                                params['growth_temp_CV'],
+                                params['growth_temp_t0'], backgrowdays, sourcePop, params['sizecontrol'], M_mature,
+                                F_mature,
+                                params['mature_slope_male'], params['mature_int_male'],
+                                params['mature_slope_female'], params['mature_int_female'],
+                                params['mature_length_male'],
+                                params['mature_length_female'])
 
             # Print to log
             stringout = 'Second DoUpdate(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -573,11 +574,25 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            SubpopIN = DoEmigration(SubpopIN,K,FdispOutno,\
-            MdispOutno,cdmatrix_FOut,cdmatrix_MOut,gen,xgridpop,ygridpop,F_EmiDist,M_EmiDist,cdevolveans,fitvals,F_EmiDist_sd,M_EmiDist_sd,subpopemigration,\
-            SelectionDeathsEmi,DisperseDeathsEmi,\
-            burningen,Mg,\
-            MgSuccess,AdultNoMg,sum(alleles),age_Mg,thresh_FOut,thresh_MOut,N_Emigration_pop,sourcePop,dtype,setmigrate,sizeans,age_size_mean,PackingDeathsEmi,N_Emigration_age,loci,muterate,mtdna,mutationans,FdispOut_ScaleMax,FdispOut_ScaleMin,MdispOut_ScaleMax,MdispOut_ScaleMin,FdispmoveOutparA,FdispmoveOutparB,FdispmoveOutparC,MdispmoveOutparA,MdispmoveOutparB,MdispmoveOutparC,packans,PackingDeathsEmiAge,ithmcrundir,packpar1,timecdevolve,age_percmort_out,migrate)
+            SubpopIN = DoEmigration(SubpopIN, K, FdispOutno, \
+                                    MdispOutno, cdmatrix_FOut, cdmatrix_MOut, gen, xgridpop, ygridpop, F_EmiDist,
+                                    M_EmiDist, params['cdevolveans'], fitvals, F_EmiDist_sd, M_EmiDist_sd,
+                                    subpopemigration, \
+                                    SelectionDeathsEmi, DisperseDeathsEmi, \
+                                    params['startSelection'], Mg, \
+                                    MgSuccess, AdultNoMg, sum(params['alleles']), age_Mg, thresh_FOut, thresh_MOut,
+                                    N_Emigration_pop, sourcePop, dtype, setmigrate, params['sizecontrol'],
+                                    age_size_mean,
+                                    PackingDeathsEmi, N_Emigration_age, params['loci'], params['muterate'],
+                                    params['mtdna'],
+                                    params['mutationtype'],
+                                    FdispOut_ScaleMax, FdispOut_ScaleMin, MdispOut_ScaleMax, MdispOut_ScaleMin,
+                                    params['FdispmoveOutparA'], params['FdispmoveOutparB'], params['FdispmoveOutparC'],
+                                    params['MdispmoveOutparA'], params['MdispmoveOutparB'], params['MdispmoveOutparC'],
+                                    params['popmodel'],
+                                    PackingDeathsEmiAge,
+                                    ithmcrundir, params['popmodel_par1'], params['implementSelection'],
+                                    age_percmort_out, migrate)
 
             # Print to log
             stringout = 'DoEmigration(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -589,9 +604,10 @@ def doBatch(ibatch, params):
             # ----------------------------------------
             start_time1 = datetime.datetime.now() # Timing events: start
 
-            SubpopIN = DoMortality(SubpopIN,K,PopDeathsOUT,\
-            popmort_out,age_percmort_out,\
-            gen,N_EmiMortality,AgeDeathsOUT,sizeans,age_size_mean,size_percmort_out,SizeDeathsOUT,constMortans,packans)
+            SubpopIN = DoMortality(SubpopIN, K, PopDeathsOUT, \
+                                   popmort_out, age_percmort_out, \
+                                   gen, N_EmiMortality, AgeDeathsOUT, params['sizecontrol'], age_size_mean,
+                                   size_percmort_out, SizeDeathsOUT, params['constMortans'], params['popmodel'])
 
             # Print to log
             stringout = 'DoOutMortality(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -601,9 +617,21 @@ def doBatch(ibatch, params):
             # ----------------------------------------------------
             # Call DoUpdate() - grow, capture, and optional output indSample.csv
             # ----------------------------------------------------
-            start_time1 = datetime.datetime.now() # Timing events: start
+            start_time1 = datetime.datetime.now()  # Timing events: start
 
-            SubpopIN = DoUpdate(SubpopIN,K,xgridpop,ygridpop,gen,nthfile,ithmcrundir,loci,alleles,logfHndl,gridsample,growans,'N',[],burningen,age_capture_out,pop_capture_out,Track_CaptureCount_Out,Track_CaptureCount_ClassOut,sizeans,age_size_mean,Track_N_out_age,eggFreq,outsizevals,sizeLoo,sizeR0,size_eqn_1,size_eqn_2,size_eqn_3,outgrowdays,'EmiPop')
+            SubpopIN = DoUpdate(SubpopIN, K, xgridpop, ygridpop, gen, nthfile, ithmcrundir, params['loci'],
+                                params['alleles'],
+                                logfHndl,
+                                params['gridsampling'], params['growth_option'], 'N', [], params['startSelection'],
+                                age_capture_out,
+                                pop_capture_out,
+                                Track_CaptureCount_Out, Track_CaptureCount_ClassOut, params['sizecontrol'],
+                                age_size_mean,
+                                Track_N_out_age,
+                                params['eggFrequency'], outsizevals, params['growth_Loo'], params['growth_R0'],
+                                params['growth_temp_max'],
+                                params['growth_temp_CV'],
+                                params['growth_temp_t0'], outgrowdays, 'EmiPop')
 
             # Print to log
             stringout = 'Third DoUpdate(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -613,14 +641,43 @@ def doBatch(ibatch, params):
             # ------------------------------------------
             # Call DoImmigration()
             # ------------------------------------------
-            start_time1 = datetime.datetime.now() # Timing events: start
+            start_time1 = datetime.datetime.now()  # Timing events: start
 
-            SubpopIN = DoImmigration(SubpopIN,K,N0,natal,FdispBackno,\
-            MdispBackno,cdmatrix_FBack,cdmatrix_MBack,gen,\
-            xgridpop,ygridpop,cdevolveans,fitvals,subpopimmigration,\
-            SelectionDeathsImm,DisperseDeathsImm,burningen,Str,\
-            StrSuccess,\
-            Strno,cdmatrix_StrBack,age_S,thresh_FBack,thresh_MBack,thresh_Str,N_Immigration_pop,dtype,sizeans,age_size_mean,PackingDeathsImm,N_Immigration_age,FdispBack_ScaleMax,FdispBack_ScaleMin,MdispBack_ScaleMax,MdispBack_ScaleMin,FdispmoveBackparA,FdispmoveBackparB,FdispmoveBackparC,MdispmoveBackparA,MdispmoveBackparB,MdispmoveBackparC,Str_ScaleMax,Str_ScaleMin,StrBackparA,StrBackparB,StrBackparC,packans,PackingDeathsImmAge,ithmcrundir,packpar1,noOffspring,Bearpairs,age_size_std,Femalepercent_egg,sourcePop,transmissionprob,M_mature,F_mature,Mmat_slope,Mmat_int,Fmat_slope,Fmat_int,Mmat_set,Fmat_set,loci,muterate,mtdna,mutationans,geneswap,allelst,homeattempt,timecdevolve,N_beforePack_Immi_pop,N_beforePack_Immi_age,SelectionDeathsImm_Age0s,F_StrayDist,M_StrayDist,F_StrayDist_sd,M_StrayDist_sd,F_ZtrayDist,M_ZtrayDist,F_ZtrayDist_sd,M_ZtrayDist_sd,F_HomeDist,M_HomeDist,F_HomeDist_sd,M_HomeDist_sd,SNPans)
+            SubpopIN = DoImmigration(SubpopIN, K, N0, natal, FdispBackno, \
+                                     MdispBackno, cdmatrix_FBack, cdmatrix_MBack, gen, \
+                                     xgridpop, ygridpop, params['cdevolveans'], fitvals, subpopimmigration, \
+                                     SelectionDeathsImm, DisperseDeathsImm, params['startSelection'], Str, \
+                                     StrSuccess, \
+                                     Strno, cdmatrix_StrBack, age_S, thresh_FBack, thresh_MBack, thresh_Str,
+                                     N_Immigration_pop, dtype, params['sizecontrol'], age_size_mean, PackingDeathsImm,
+                                     N_Immigration_age, FdispBack_ScaleMax, FdispBack_ScaleMin, MdispBack_ScaleMax,
+                                     MdispBack_ScaleMin,
+                                     params['FdispmoveBackparA'], params['FdispmoveBackparB'],
+                                     params['FdispmoveBackparC'],
+                                     params['MdispmoveBackparA'], params['MdispmoveBackparB'],
+                                     params['MdispmoveBackparC'],
+                                     Str_ScaleMax,
+                                     Str_ScaleMin, params['StrayBackparA'], params['StrayBackparB'],
+                                     params['StrayBackparC'],
+                                     params['popmodel'],
+                                     PackingDeathsImmAge,
+                                     ithmcrundir, params['popmodel_par1'], noOffspring, Bearpairs, age_size_std,
+                                     params['Egg_FemalePercent'],
+                                     sourcePop, params['transmissionprob'], M_mature, F_mature,
+                                     params['mature_slope_male'], params['mature_int_male'],
+                                     params['mature_slope_female'],
+                                     params['mature_int_female'], params['mature_length_male'],
+                                     params['mature_length_female'],
+                                     params['loci'],
+                                     params['muterate'], params['mtdna'],
+                                     params['mutationtype'],
+                                     params['startGenes'],
+                                     allelst, params['HomeAttempt'], params['implementSelection'],
+                                     N_beforePack_Immi_pop,
+                                     N_beforePack_Immi_age,
+                                     SelectionDeathsImm_Age0s, F_StrayDist, M_StrayDist, F_StrayDist_sd, M_StrayDist_sd,
+                                     F_ZtrayDist, M_ZtrayDist, F_ZtrayDist_sd, M_ZtrayDist_sd, F_HomeDist, M_HomeDist,
+                                     F_HomeDist_sd, M_HomeDist_sd, params['SNPanswer'])
             del(Bearpairs)
             # Print to log
             stringout = 'DoImmigration(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -634,10 +691,11 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            SubpopIN = DoMortality(SubpopIN,K,PopDeathsIN,\
-            popmort_back,age_percmort_back,\
-            gen,N_ImmiMortality,AgeDeathsIN,sizeans,age_size_mean,size_percmort_back,SizeDeathsIN,
-            constMortans,packans)
+            SubpopIN = DoMortality(SubpopIN, K, PopDeathsIN, \
+                                   popmort_back, age_percmort_back, \
+                                   gen, N_ImmiMortality, AgeDeathsIN, params['sizecontrol'], age_size_mean,
+                                   size_percmort_back, SizeDeathsIN,
+                                   params['constMortans'], params['popmodel'])
 
             # Print to log
             stringout = 'DoInMortality(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -651,7 +709,13 @@ def doBatch(ibatch, params):
             # Timing events: start
             start_time1 = datetime.datetime.now()
 
-            GetMetrics(SubpopIN,K,Track_N_Init_pop,Track_K,loci,alleles,gen+1,Track_Ho,Track_Alleles,Track_He,Track_p1,Track_p2,Track_q1,Track_q2,Infected,Residors,Strayers1,Strayers2,Immigrators,PopSizes_Mean,PopSizes_Std,AgeSizes_Mean,AgeSizes_Std,Track_ToTMales,Track_ToTFemales,Track_BreedMales,Track_BreedFemales,Track_N_Init_age,Track_MatureCount,Track_ImmatureCount,sizeans,age_size_mean,ClassSizes_Mean,ClassSizes_Std,Track_N_Init_class,sexans,SNPans)
+            GetMetrics(SubpopIN, K, Track_N_Init_pop, Track_K, params['loci'], params['alleles'], gen + 1, Track_Ho,
+                       Track_Alleles,
+                       Track_He, Track_p1, Track_p2, Track_q1, Track_q2, Infected, Residors, Strayers1, Strayers2,
+                       Immigrators, PopSizes_Mean, PopSizes_Std, AgeSizes_Mean, AgeSizes_Std, Track_ToTMales,
+                       Track_ToTFemales, Track_BreedMales, Track_BreedFemales, Track_N_Init_age, Track_MatureCount,
+                       Track_ImmatureCount, params['sizecontrol'], age_size_mean, ClassSizes_Mean, ClassSizes_Std, Track_N_Init_class,
+                       params['sexans'], params['SNPanswer'])
 
             # Print to log
             stringout = 'GetMetrics(): '+str(datetime.datetime.now() -start_time1) + ''
@@ -679,16 +743,29 @@ def doBatch(ibatch, params):
         # Timing events: start
         start_time1 = datetime.datetime.now()
 
-        DoPostProcess(ithmcrundir,gendmatans,loci,alleles,looptime,\
-        Track_ToTFemales,Track_ToTMales,Track_BreedFemales,Track_BreedMales,Track_Births,PopDeathsIN,\
-        PopDeathsOUT,Track_Alleles,Track_He,Track_Ho,Track_MateDistCD,Track_MateDistCDstd,nthfile,logfHndl,\
-        Track_p1,Track_p2,Track_q1,Track_q2,subpopemigration,\
-        subpopimmigration,Track_FAvgMate,Track_MAvgMate,Track_FSDMate,Track_MSDMate,\
-        SelectionDeathsEmi,SelectionDeathsImm,\
-        DisperseDeathsEmi,DisperseDeathsImm,\
-        Track_BreedEvents,gridformat,\
-        MgSuccess,AdultNoMg,StrSuccess,\
-        Track_EggDeaths,Track_K,Track_N_Init_pop,N_Emigration_pop,N_EmiMortality,N_Immigration_pop,N_ImmiMortality,Infected,Residors,Strayers1,Strayers2,Immigrators,PopSizes_Mean,PopSizes_Std,AgeSizes_Mean,AgeSizes_Std,PackingDeathsEmi,PackingDeathsImm,Track_N_Init_age,N_Emigration_age,N_Immigration_age,AgeDeathsOUT,AgeDeathsIN,PackingDeathsEmiAge,PackingDeathsImmAge,Track_MatureCount,Track_ImmatureCount,Track_N_back_age,Track_N_out_age,outputans,gen,Track_CaptureCount_Back,Track_CaptureCount_ClassBack,Track_CaptureCount_Out,Track_CaptureCount_ClassOut,age_size_mean,sizeans,ClassSizes_Mean,ClassSizes_Std,Track_N_Init_class,SizeDeathsOUT,SizeDeathsIN,N_beforePack_Immi_pop,N_beforePack_Immi_age,SelectionDeathsImm_Age0s,F_StrayDist,M_StrayDist,F_StrayDist_sd,M_StrayDist_sd,F_ZtrayDist,M_ZtrayDist,F_ZtrayDist_sd,M_ZtrayDist_sd,F_HomeDist,M_HomeDist,F_HomeDist_sd,M_HomeDist_sd,F_EmiDist,M_EmiDist,F_EmiDist_sd,M_EmiDist_sd,SNPans)
+        DoPostProcess(ithmcrundir, params['gendmatans'], params['loci'], params['alleles'], params['runtime'], \
+                      Track_ToTFemales, Track_ToTMales, Track_BreedFemales, Track_BreedMales, Track_Births, PopDeathsIN, \
+                      PopDeathsOUT, Track_Alleles, Track_He, Track_Ho, Track_MateDistCD, Track_MateDistCDstd, nthfile,
+                      logfHndl, \
+                      Track_p1, Track_p2, Track_q1, Track_q2, subpopemigration, \
+                      subpopimmigration, Track_FAvgMate, Track_MAvgMate, Track_FSDMate, Track_MSDMate, \
+                      SelectionDeathsEmi, SelectionDeathsImm, \
+                      DisperseDeathsEmi, DisperseDeathsImm, \
+                      Track_BreedEvents, params['gridformat'], \
+                      MgSuccess, AdultNoMg, StrSuccess, \
+                      Track_EggDeaths, Track_K, Track_N_Init_pop, N_Emigration_pop, N_EmiMortality, N_Immigration_pop,
+                      N_ImmiMortality, Infected, Residors, Strayers1, Strayers2, Immigrators, PopSizes_Mean,
+                      PopSizes_Std, AgeSizes_Mean, AgeSizes_Std, PackingDeathsEmi, PackingDeathsImm, Track_N_Init_age,
+                      N_Emigration_age, N_Immigration_age, AgeDeathsOUT, AgeDeathsIN, PackingDeathsEmiAge,
+                      PackingDeathsImmAge, Track_MatureCount, Track_ImmatureCount, Track_N_back_age, Track_N_out_age,
+                      params['summaryOutput'], gen, Track_CaptureCount_Back, Track_CaptureCount_ClassBack,
+                      Track_CaptureCount_Out, Track_CaptureCount_ClassOut, age_size_mean, params['sizecontrol'],
+                      ClassSizes_Mean,
+                      ClassSizes_Std, Track_N_Init_class, SizeDeathsOUT, SizeDeathsIN, N_beforePack_Immi_pop,
+                      N_beforePack_Immi_age, SelectionDeathsImm_Age0s, F_StrayDist, M_StrayDist, F_StrayDist_sd,
+                      M_StrayDist_sd, F_ZtrayDist, M_ZtrayDist, F_ZtrayDist_sd, M_ZtrayDist_sd, F_HomeDist, M_HomeDist,
+                      F_HomeDist_sd, M_HomeDist_sd, F_EmiDist, M_EmiDist, F_EmiDist_sd, M_EmiDist_sd,
+                      params['SNPanswer'])
 
         # Print to log
         stringout = 'DoPostProcess(): '+str(datetime.datetime.now() -start_time1) + ''
