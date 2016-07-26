@@ -164,7 +164,7 @@ def checkErrors(param_list):
             errors += 1
 
         if params['cdevolveans'] in ('1', '2', '1_mat', '2_mat', '1_G_ind', '1_G_link'):
-            if not (params['timecdevolve'] != 'Out' or params['timecdevolve'] != 'Back' or params['timecdevolve'] != 'Both'):
+            if not (params['implementSelection'] != 'Out' or params['implementSelection'] != 'Back' or params['implementSelection'] != 'Both'):
                 print('CDEVOLVE timing must be specified (e.g., Out, Back or Both).')
                 errors += 1
 
