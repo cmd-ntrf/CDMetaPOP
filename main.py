@@ -31,12 +31,9 @@ except ImportError as eMsg:
     sys.exit(-1)
 
 # CDmetaPOP functions
-try:
-    from CDmetaPOP.modules import *
-    from CDmetaPOP.postprocess import *
-    from CDmetaPOP.preprocess import *
-except ImportError:
-    raise ImportError, "CDmetaPOP_Modules required."
+from CDmetaPOP.modules import *
+from CDmetaPOP.postprocess import *
+from CDmetaPOP.preprocess import *
 
 
 def doBatch(ibatch, params):
