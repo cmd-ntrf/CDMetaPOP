@@ -1741,21 +1741,21 @@ def DoStochasticUpdate(K_mu,K_std,popmort_back_mu,popmort_back_sd,popmort_out_mu
     # Case here for sigma == 0
     if sigma != 0:
         # Call a truncated normal here
-        lower, upper = 0,100
+        lower, upper = 0, 100
         X = truncnorm.rvs((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma)
-        eggmort_age = round(X/100.,3)
+        eggmort_age = round(X / 100., 3)
     else:
-        eggmort_age = round(mu/100.,3)
+        eggmort_age = round(mu / 100., 3)
     if eggmort_age < 0:
         eggmort_age = 0
 
-    return K,popmort_back,popmort_out,eggmort_patch,outsizevals,backsizevals,outgrowdays,backgrowdays,age_percmort_out,age_percmort_back,	size_percmort_out,size_percmort_back,eggmort_age
-    #End::DoStochasticUpdate()
+    return K, popmort_back, popmort_out, eggmort_patch, outsizevals, backsizevals, outgrowdays, backgrowdays, age_percmort_out, age_percmort_back, size_percmort_out, size_percmort_back, eggmort_age
+    # End::DoStochasticUpdate()
 
-# ---------------------------------------------------------------------------------------------------	 
-def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, cdevolveans, cdinfect, subpopemigration,
-                 subpopimmigration, sizeans, eggFreq, Fmat_set, Mmat_set, Fmat_int, Fmat_slope, Mmat_int, Mmat_slope,
-                 burningen, cor_mat_ans, SNPans):
+
+# ---------------------------------------------------------------------------------------------------
+def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, cdevolveans, cdinfect, sizeans, eggFreq,
+                 Fmat_set, Mmat_set, Fmat_int, Fmat_slope, Mmat_int, Mmat_slope, burningen, cor_mat_ans, SNPans):
     '''
     DoPreProcess()
     This function does all the pre-processing work before
@@ -1939,8 +1939,8 @@ def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, c
 
     # Get N here - N maybe slighlty different then specified due to random draws
     N = []
-    subpopemigration.append([]) # These are tracking variables init here
-    subpopimmigration.append([]) # There are tracking variables init here
+    subpopemigration = [[]] # These are tracking variables init here
+    subpopimmigration = [[]]  # There are tracking variables init here
 
     # Set class variable by list of populations
     for isub in xrange(unisubpops):
@@ -2027,19 +2027,32 @@ def DoPreProcess(outdir, datadir, ibatch, ithmcrun, xyfilename, loci, alleles, c
     del(layEggs)
 
     # Return this functions variables
-    tupPreProcess = ithmcrundir,\
-    fitvals,allelst,subpopemigration,subpopimmigration,\
-    age_percmort_out,age_percmort_back,age_Mg,age_S,\
-    age_mu,age_size_mean,age_size_std,xgridpop,ygridpop,\
-    SubpopIN,N,K,dtype,outsizevals,backsizevals,\
-    popmort_out,popmort_back,Mg,Str,newmortperc,setmigrate,M_mature,F_mature,age_sigma,outgrowdays,backgrowdays,K_temp,age_capture_out,age_capture_back,Kstd_temp,Kstd,popmort_out_sd,popmort_back_sd,newmortperc_sd,outsizevals_sd,backsizevals_sd,outgrowdays_sd,backgrowdays_sd,size_percmort_out,size_percmort_back,age_percmort_out_sd,age_percmort_back_sd,size_percmort_out_sd,size_percmort_back_sd,pop_capture_back_pass,pop_capture_out,pop_capture_back,natal,cor_mat,migrate,N0_temp,allefreqfiles_temp,classvarsfiles_temp
+    return {"ithmcrundir": ithmcrundir, "fitvals_pass": fitvals, "allelst": allelst,
+            "subpopemigration": subpopemigration, "subpopimmigration": subpopimmigration,
+            "age_percmort_out_mu": age_percmort_out, "age_percmort_back_mu": age_percmort_back, "age_Mg": age_Mg,
+            "age_S": age_S, "age_mu": age_mu, "age_size_mean": age_size_mean, "age_size_std": age_size_std,
+            "xgridpop": xgridpop, "ygridpop": ygridpop, "SubpopIN_init": SubpopIN, "N0": N, "K_mu": K, "dtype": dtype,
+            "outsizevals_pass": outsizevals, "backsizevals_pass": backsizevals, "popmort_out_pass": popmort_out,
+            "popmort_back_pass": popmort_back, "Mg_pass": Mg, "Str_pass": Str, "eggmort_pass": newmortperc,
+            "setmigrate": setmigrate, "M_mature": M_mature, "F_mature": F_mature, "age_sigma": age_sigma,
+            "outgrowdays_pass": outgrowdays, "backgrowdays_pass": backgrowdays, "Kmu_pass": K_temp,
+            "age_capture_out": age_capture_out, "age_capture_back": age_capture_back, "Kstd_pass": Kstd_temp,
+            "K_std": Kstd, "popmort_out_sd_pass": popmort_out_sd, "popmort_back_sd_pass": popmort_back_sd,
+            "eggmort_sd_pass": newmortperc_sd, "outsizevals_sd_pass": outsizevals_sd,
+            "backsizevals_sd_pass": backsizevals_sd, "outgrowdays_sd_pass": outgrowdays_sd,
+            "backgrowdays_sd_pass": backgrowdays_sd, "size_percmort_out_mu": size_percmort_out,
+            "size_percmort_back_mu": size_percmort_back, "age_percmort_out_sd": age_percmort_out_sd,
+            "age_percmort_back_sd": age_percmort_back_sd, "size_percmort_out_sd": size_percmort_out_sd,
+            "size_percmort_back_sd": size_percmort_back_sd,
+            "pop_capture_back_pass" : pop_capture_back_pass, "pop_capture_out_pass": pop_capture_out,
+            "pop_capture_back" : pop_capture_back, "natal" : natal, "cor_mat" : cor_mat, "migrate" : migrate,
+            "N0_pass" : N0_temp, "allefreqfiles_pass" : allefreqfiles_temp, "classvarsfiles_pass" : classvarsfiles_temp}
+    # End::DoPreProcess()
 
-    return tupPreProcess
-    #End::DoPreProcess()
+    # ---------------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------------	 		
+
 def DoUserInput(fileans):
-
     '''
     DoUserInput()
     This function reads in the user input and
