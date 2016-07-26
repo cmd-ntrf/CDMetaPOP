@@ -190,9 +190,9 @@ def checkErrors(param_list):
             errors += 1
 
         # Check burn in times
-        if params['cdevolveans'] != 'N' and params['burningen'] < params['geneswap']:
+        if params['cdevolveans'] != 'N' and params['startSelection'] < params['startGenes']:
             print('Warning: Burnin time < time at which genetic exchange is to initialize, setting burnin time = start genetic exchange time.')
-            params['burningen'] = params['geneswap']
+            params['burningen'] = params['startGenes']
             warnings += 1
 
         # Egg frequency
