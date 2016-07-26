@@ -279,7 +279,7 @@ def doBatch(ibatch, params):
         # Print to log
         stringout = 'DoPreProcess(): '+str(datetime.datetime.now() -start_time1) + ''
         logMsg(logfHndl,stringout)
-        print 'DoPreProcess(): ',str(datetime.datetime.now() -start_time1),''
+        print(stringout)
 
         # ---------------------------------
         # Call GetMetrics()
@@ -300,7 +300,7 @@ def doBatch(ibatch, params):
         # Print to log
         stringout = 'GetMetrics() Initial: '+str(datetime.datetime.now() -start_time1) + ''
         logMsg(logfHndl,stringout)
-        print 'GetMetrics() Initial: ',str(datetime.datetime.now() -start_time1),''
+        print(stringout)
 
         # ---------------------------------
         # Error statements
@@ -872,4 +872,4 @@ if __name__ == '__main__':
 stringout = 'Total CDmetaPOP Simulation Time: '+str(datetime.datetime.now() -start_time) + ''
 logMsg(logfHndl,stringout)
 logfHndl.close()
-print 'Total CDmetaPOP Simulation Time: ',str(datetime.datetime.now() -start_time),''
+print(stringout)
