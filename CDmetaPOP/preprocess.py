@@ -129,7 +129,7 @@ def checkErrors(param_list):
         if params['SNPanswer'] == 'Y':
             # 4 alleles used
             if params['alleles'][0] != 4:
-                print('Warnign: SNP option specified and 4 ATCG locations is default.')
+                print('Warning: SNP option specified and 4 ATCG locations is default.')
                 params['alleles'] = 4 * np.ones(params['loci'], int)
                 warnings += 1
 
